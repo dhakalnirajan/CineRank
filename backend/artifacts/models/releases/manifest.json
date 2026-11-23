@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "release_id": "cinerank-20261122T080515Z-5de9f572",
+  "training_run_id": "run-20261122T080515Z-5de9f572",
+  "status": "complete",
+  "created_at_utc": "2026-11-22T08:38:52.591261+00:00",
+  "provider": "movielens",
+  "item_id_file": "item_provider_ids.npy",
+  "n_items": 86537,
+  "models": {
+    "popularity": {
+      "status": "available",
+      "files": [
+        "popularity_scores.npy",
+        "popularity_config.json"
+      ],
+      "production_enabled": true
+    },
+    "content": {
+      "status": "available",
+      "files": [
+        "content_item_vectors.npz",
+        "content_idf.npy",
+        "content_config.json"
+      ],
+      "production_enabled": true
+    },
+    "itemknn": {
+      "status": "available",
+      "files": [
+        "itemknn_topk.npz",
+        "itemknn_config.json"
+      ],
+      "production_enabled": true
+    },
+    "als": {
+      "status": "available",
+      "files": [
+        "als_item_factors.npy",
+        "als_config.json"
+      ],
+      "production_enabled": true
+    },
+    "bpr": {
+      "status": "available",
+      "files": [
+        "bpr_item_factors.npy",
+        "bpr_config.json"
+      ],
+      "production_enabled": true
+    },
+    "attention": {
+      "status": "available",
+      "files": [
+        "attention.safetensors",
+        "attention.onnx",
+        "attention_config.json"
+      ],
+      "production_enabled": true
+    },
+    "hybrid": {
+      "status": "available",
+      "files": [
+        "hybrid_config.json"
+      ],
+      "production_enabled": true
+    }
+  },
+  "files": {
+    "als_config.json": {
+      "sha256": "1b0481571c571279711a987d0cd1d2ebda4f22ce89ac49089959c384d469b65e",
+      "bytes": 883
+    },
+    "als_item_factors.npy": {
+      "sha256": "c6280783528b5669ee7044392370c019867157ee2523a59a8350f1405f1baa52",
+      "bytes": 44307072,
+      "dtype": "float32",
+      "shape": [
+        86537,
+        128
+      ]
+    },
+    "attention.onnx": {
+      "sha256": "8ae147af58a8acc3950b3d555404c0dec21ce6a9a47ebdb5d975d09ccc435725",
+      "bytes": 22776005
+    },
+    "attention.safetensors": {
+      "sha256": "eba9c0bc957ee8471bce3ab7a0ba25dbf7b6ad8320eb0086e59e21e142ef6b5c",
+      "bytes": 22766644
+    },
+    "attention_config.json": {
+      "sha256": "d930d0d9e1b59c8a7eb5bbf60bc628ac46b7f5e3bcdc350f095d2f2043a83fff",
+      "bytes": 1817
+    },
+    "bpr_config.json": {
+      "sha256": "1c327074a7e7909989ab6c8db2ed7564c2e8ae87a9df152a0dfec92782f7278e",
+      "bytes": 1225
+    },
+    "bpr_item_factors.npy": {
+      "sha256": "ddf989f5b114fd61d68ffdc5936df265d37d2d176fa5ddc4e607bf16b03162d0",
+      "bytes": 22499748,
+      "dtype": "float32",
+      "shape": [
+        86537,
+        65
+      ]
+    },
+    "content_config.json": {
+      "sha256": "838cb06eb5a638576f938e8ae471104c548b6b3115474b24fdc07b38f92c1cc4",
+      "bytes": 697137
+    },
+    "content_idf.npy": {
+      "sha256": "14b225a7e0f5284d3b0dbba2629587a5f3b3470749abf3c8ce2e40f6eecd02b9",
+      "bytes": 110580,
+      "dtype": "float32",
+      "shape": [
+        27613
+      ]
+    },
+    "content_item_vectors.npz": {
+      "sha256": "ba49ac1a1f2a9c6c75ef681c90788781f9d1d42daf0b8ff19f42b87118f76332",
+      "bytes": 2445994,
+      "dtype": "float32",
+      "shape": [
+        86537,
+        27613
+      ],
+      "nnz": 457913,
+      "format": "csr"
+    },
+    "hybrid_config.json": {
+      "sha256": "699cb74d35a74ba35c0abd5bddf46f98357822bf156ac3b90567fbf29c92352f",
+      "bytes": 1775
+    },
+    "item_provider_ids.npy": {
+      "sha256": "3b5b0324f30d5189c363844d7ba5f6a2b4b49f4075b2609f6bc84948151969e4",
+      "bytes": 692424,
+      "dtype": "int64",
+      "shape": [
+        86537
+      ]
+    },
+    "itemknn_config.json": {
+      "sha256": "bb3892ee707287f7b3388181237e64fc379963dc7398c6edb47ad759ae749cde",
+      "bytes": 569
+    },
+    "itemknn_topk.npz": {
+      "sha256": "374e89a176f1f5e7c8a1e24cad1004b7d106ef1ddb00ea2c3897e4ce18caebb9",
+      "bytes": 1297711,
+      "dtype": "float32",
+      "shape": [
+        86537,
+        86537
+      ],
+      "nnz": 243440,
+      "format": "csr"
+    },
+    "popularity_config.json": {
+      "sha256": "f2589135090b5d21c29c2a00e7a8c15d94e9313e8772340349435d0ff95573e4",
+      "bytes": 562
+    },
+    "popularity_scores.npy": {
+      "sha256": "7efae662ede80fa76044b3d026ec1f860249b4685d1b03c4a5cff8bfc06b0a6a",
+      "bytes": 346276,
+      "dtype": "float32",
+      "shape": [
+        86537
+      ]
+    }
+  },
+  "dataset": {
+    "name": "MovieLens",
+    "url": "https://files.grouplens.org/datasets/movielens/ml-latest.zip",
+    "directory": "ml-latest",
+    "archive_sha256": "66a9e518c747d76b241d9a859b001a2619d3ed1672ceef599eb50daf73a7b4a3"
+  },
+  "training_cohort": {
+    "users": 10000,
+    "sampling": "uniform random sample without replacement, seed=42",
+    "seed": 42,
+    "note": "a sample of MovieLens users; not the CineRank population"
+  },
+  "feedback_semantics": {
+    "positive_rating_threshold": 3.5,
+    "negative_rating_threshold": 2.5,
+    "missing_observations": "not dislikes"
+  },
+  "attention_training": {
+    "time_budget_sec": 600.0,
+    "elapsed_wall_clock_sec": 598.314,
+    "optimizer_steps": 35898,
+    "budget_respected": true
+  },
+  "signature": {
+    "status": "unsigned",
+    "note": "SHA256SUMS detects corruption only. Production must verify a trusted publisher signature over manifest.json (see backend/docs/operations/model_deployment.md)."
+  },
+  "runtime_requirements": {
+    "python_packages": [
+      "numpy",
+      "scipy",
+      "onnxruntime (CPU) or onnxruntime-gpu (optional)",
+      "safetensors (optional, canonical weights)"
+    ],
+    "np_load": "allow_pickle=False"
+  },
+  "release_complete": true
+}

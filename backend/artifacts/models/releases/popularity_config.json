@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "model": "popularity",
+  "t_cut_unix": 1689820817,
+  "t_cut_utc": "2023-07-20T02:40:17+00:00",
+  "half_life_days": 365.0,
+  "prior_strength": 10.0,
+  "lambda_per_second": 2.1979552909688777e-08,
+  "q0": 0.6766885019128505,
+  "scale": 122.03395245179222,
+  "formula": "score_i = D_i * q_i / max; D_i = sum_pos relevance*exp(-lambda*(t_cut-t)); q_i = (P_i + m*q0)/(A_i + m)",
+  "positive_rating_threshold": 3.5,
+  "unobserved_item_score": 0.0,
+  "tie_break": "descending score, then ascending item index",
+  "items_with_signal": 18855
+}

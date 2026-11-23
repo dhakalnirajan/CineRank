@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "config_id": "cinerank-20261122T080515Z-5de9f572-hybrid",
+  "algorithm": "normalized_weighted_fusion_with_mmr",
+  "feedback": {
+    "positive_rating_threshold": 3.5,
+    "negative_rating_threshold": 2.5,
+    "relevance_mapping": "clip((rating - 0.5) / 4.5, 0, 1)"
+  },
+  "candidate_generation": {
+    "sources": [
+      "popularity",
+      "content",
+      "itemknn",
+      "als",
+      "bpr"
+    ],
+    "per_source": 100,
+    "pool": "union of each source's top-N, excluding every item in the user's history"
+  },
+  "scoring_models": [
+    "popularity",
+    "content",
+    "itemknn",
+    "als",
+    "bpr",
+    "attention"
+  ],
+  "normalization": "rank",
+  "weights": {
+    "popularity": 0.0408,
+    "content": 0.0434,
+    "itemknn": 0.0409,
+    "als": 0.0188,
+    "bpr": 0.0536,
+    "attention": 0.8025
+  },
+  "cold_item_policy": {
+    "models": [
+      "attention"
+    ],
+    "rule": "popularity_scores == 0",
+    "behavior": "score := minimum of the candidate pool before normalisation"
+  },
+  "mmr": {
+    "enabled": true,
+    "lambda": 0.7,
+    "candidate_depth": 50,
+    "similarity": "cosine of content_item_vectors rows"
+  },
+  "fallback": {
+    "cold_start_user": "popularity",
+    "model_unavailable": "drop the model, renormalise remaining weights per request",
+    "no_scoring_model": "popularity",
+    "chain": [
+      "hybrid",
+      "als",
+      "itemknn",
+      "content",
+      "popularity"
+    ]
+  },
+  "tuning": {
+    "method": "random search over the weight simplex (507 candidates per normalisation) maximising validation NDCG@10 on the shared candidate pool; this is a search result, not a proven optimum",
+    "validation_ndcg@10_pool": 0.09493516922028243,
+    "mmr_rule": "most diverse lambda within 2% NDCG@10 loss"
+  }
+}

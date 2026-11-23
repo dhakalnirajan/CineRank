@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "model": "implicit_bpr",
+  "n_items": 86537,
+  "factors": 64,
+  "item_factor_columns": 65,
+  "item_bias_column": -1,
+  "layout": "[:, :-1] latent factors, [:, -1] item bias; score = u . v_i + b_i",
+  "fold_in": {
+    "iterations": 100,
+    "regularization": 0.01,
+    "negatives_per_positive": 3,
+    "max_positives": 100,
+    "seed": 42,
+    "learning_rate": 0.03,
+    "method": "Adam on the pairwise BPR loss with item factors frozen; negatives uniform, never from history; seed = seed + sum(positive item indices) % 1000003"
+  },
+  "production_enabled": true,
+  "gate": {
+    "foldin_val_ndcg@10": 0.05267178428561796,
+    "popularity_val_ndcg@10_same_users": 0.02266552143757829,
+    "required_ratio": 1.0,
+    "foldin_loss_median_start": 0.41382932026725755,
+    "foldin_loss_median_end": 0.06488377937711383,
+    "converged": true,
+    "median_top10_overlap_vs_trained_user_vectors": 0.5,
+    "production_enabled": true,
+    "unsupported_arguments_dropped": [
+      "use_gpu"
+    ],
+    "verify_negative_samples": true
+  },
+  "user_factors_exported": false,
+  "warning": "Disabled in production unless the validation gate passed. Averaging item factors is not equivalent to BPR inference."
+}

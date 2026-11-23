@@ -1,0 +1,227 @@
+name: cinerank
+
+x-backend-environment: &backend-environment
+  ENVIRONMENT: ${ENVIRONMENT:-production}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  LOG_FILE_ENABLED: ${LOG_FILE_ENABLED:-true}
+  LOG_FILE_NAME: ${LOG_FILE_NAME:-cinerank.log}
+  LOG_MAX_BYTES: ${LOG_MAX_BYTES:-10485760}
+  LOG_BACKUP_COUNT: ${LOG_BACKUP_COUNT:-5}
+  SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in the root .env file}
+  JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in the root .env file}
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-cinerank}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}@db:5432/${POSTGRES_DB:-cinerank}
+  REDIS_URL: redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD in the root .env file}@redis:6379/0
+  SQL_POOL_SIZE: ${SQL_POOL_SIZE:-5}
+  SQL_MAX_OVERFLOW: ${SQL_MAX_OVERFLOW:-10}
+  SQL_POOL_TIMEOUT_SECONDS: ${SQL_POOL_TIMEOUT_SECONDS:-30}
+  SQL_POOL_RECYCLE_SECONDS: ${SQL_POOL_RECYCLE_SECONDS:-1800}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+  FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:8080}
+  AUTH_RATE_LIMIT_EMAIL_PER_HOUR: ${AUTH_RATE_LIMIT_EMAIL_PER_HOUR:-5}
+  EMAIL_VERIFICATION_TTL_HOURS: ${EMAIL_VERIFICATION_TTL_HOURS:-24}
+  PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-60}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USERNAME: ${SMTP_USERNAME:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-no-reply@cinerank.example}
+  SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+  SMTP_SSL: ${SMTP_SSL:-false}
+  SMTP_TIMEOUT_SECONDS: ${SMTP_TIMEOUT_SECONDS:-15}
+  AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-true}
+  AUTH_COOKIE_HTTPONLY: "true"
+  AUTH_COOKIE_SAMESITE: ${AUTH_COOKIE_SAMESITE:-lax}
+  ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+  REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS:-30}
+  MODEL_RELEASE_DIR: /app/artifacts/models/releases
+  MODEL_INFERENCE_USE_GPU: ${MODEL_INFERENCE_USE_GPU:-false}
+  MODEL_INFERENCE_REQUIRE_GPU: ${MODEL_INFERENCE_REQUIRE_GPU:-false}
+  MODEL_INFERENCE_CACHE_SIZE: ${MODEL_INFERENCE_CACHE_SIZE:-1024}
+  TMDB_API_KEY: ${TMDB_API_KEY:-}
+  TMDB_READ_ACCESS_TOKEN: ${TMDB_READ_ACCESS_TOKEN:-}
+  DATA_DIR: /app/data
+  LOG_DIR: /app/logs
+  AUTO_CREATE_SCHEMA: "false"
+
+services:
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction", "--requirepass", "${REDIS_PASSWORD:?Set REDIS_PASSWORD in the root .env file}"]
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in the root .env file}
+    volumes:
+      - cinerank-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks: [backend]
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cinerank}
+      POSTGRES_USER: ${POSTGRES_USER:-cinerank}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
+    volumes:
+      - cinerank-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks: [backend]
+
+  migrate:
+    image: cinerank/api:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    environment: *backend-environment
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: "no"
+    networks: [backend]
+
+  catalogue-bootstrap:
+    image: cinerank/api:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    command: ["python", "scripts/bootstrap_catalogue.py"]
+    environment: *backend-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    networks: [backend]
+
+  api:
+    image: cinerank/api:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    environment: *backend-environment
+    volumes:
+      - cinerank-media:/app/data/media
+      - cinerank-logs:/app/logs
+    depends_on:
+      catalogue-bootstrap:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # API liveness is independent of optional model readiness. Catalogue,
+      # auth and profile APIs must remain available while an operator deploys
+      # or repairs a model release.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 45s
+    restart: unless-stopped
+    networks:
+      frontend: {}
+      backend: {}
+
+  worker:
+    image: cinerank/api:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    command: ["python", "-m", "app.worker"]
+    environment: *backend-environment
+    volumes:
+      - cinerank-media:/app/data/media
+      - cinerank-logs:/app/logs
+    depends_on:
+      catalogue-bootstrap:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      backend: {}
+      egress: {}
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: [monitoring]
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=15d"]
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/prometheus-alerts.yml:/etc/prometheus/cinerank-alerts.yml:ro
+      - cinerank-prometheus:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [backend]
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    profiles: [monitoring]
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in the root .env file}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - cinerank-grafana:/var/lib/grafana
+      - ./deploy/grafana-datasource.yml:/etc/grafana/provisioning/datasources/cinerank.yml:ro
+      - ./deploy/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/cinerank.yml:ro
+      - ./deploy/dashboards:/etc/grafana/provisioning/dashboards/cinerank:ro
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks: [backend]
+
+  web:
+    image: cinerank/web:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+      args:
+        VITE_API_BASE_URL: /api/v1
+    ports:
+      - "${PUBLIC_HTTP_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      frontend:
+        ipv4_address: 172.30.0.2
+
+volumes:
+  cinerank-postgres:
+  cinerank-redis:
+  cinerank-media:
+  cinerank-logs:
+  cinerank-prometheus:
+  cinerank-grafana:
+
+networks:
+  frontend:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+  backend:
+    internal: true
+  # Only the scheduled worker and one-off metadata maintenance jobs need outbound TMDB access.
+  egress: {}

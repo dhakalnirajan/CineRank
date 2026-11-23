@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "model": "itemknn_topk",
+  "n_items": 86537,
+  "k": 20,
+  "weighting": "user_idf",
+  "shrinkage": 10.0,
+  "min_item_support": 2,
+  "similarity": "cosine over positive interactions, shrunk by n_ij/(n_ij+shrinkage)",
+  "orientation": "row j lists the neighbours of item j; entries are similarities >= 0; no self-similarity",
+  "scoring": "score_i = sum over positive-history items j of S[j, i]",
+  "nnz": 243440,
+  "validation": {
+    "ndcg@10": 0.05665754015658984,
+    "recall@10": 0.10666666666666667,
+    "mrr@10": 0.0416531746031746
+  }
+}

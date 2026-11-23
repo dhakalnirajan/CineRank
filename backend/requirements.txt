@@ -1,0 +1,3 @@
+# Canonical backend runtime dependencies.
+# Use requirements-dev.txt for tests and the legacy portable-model tooling.
+-r requirements-runtime.txt

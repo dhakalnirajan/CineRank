@@ -1,0 +1,102 @@
+{
+  "base_url": "http://127.0.0.1:8013/api/v1",
+  "duration_seconds": 8.0,
+  "endpoint_concurrency": 2,
+  "total_concurrency": 14,
+  "endpoints": {
+    "health": {
+      "requests": 138,
+      "errors": 0,
+      "rate_limited": 0,
+      "statuses": {
+        "200": 138
+      },
+      "throughput_rps": 17.25,
+      "p50_ms": 44.56,
+      "p95_ms": 432.54,
+      "p99_ms": 688.46,
+      "mean_ms": 113.45
+    },
+    "ready": {
+      "requests": 133,
+      "errors": 0,
+      "rate_limited": 0,
+      "statuses": {
+        "200": 133
+      },
+      "throughput_rps": 16.62,
+      "p50_ms": 45.3,
+      "p95_ms": 470.71,
+      "p99_ms": 602.82,
+      "mean_ms": 117.62
+    },
+    "catalogue": {
+      "requests": 123,
+      "errors": 0,
+      "rate_limited": 0,
+      "statuses": {
+        "200": 123
+      },
+      "throughput_rps": 15.38,
+      "p50_ms": 49.17,
+      "p95_ms": 306.95,
+      "p99_ms": 1626.24,
+      "mean_ms": 127.28
+    },
+    "facets": {
+      "requests": 86,
+      "errors": 0,
+      "rate_limited": 0,
+      "statuses": {
+        "200": 86
+      },
+      "throughput_rps": 10.75,
+      "p50_ms": 68.41,
+      "p95_ms": 257.3,
+      "p99_ms": 4009.53,
+      "mean_ms": 182.6
+    },
+    "search": {
+      "requests": 89,
+      "errors": 0,
+      "rate_limited": 59,
+      "statuses": {
+        "200": 30,
+        "429": 59
+      },
+      "throughput_rps": 11.12,
+      "p50_ms": 84.5,
+      "p95_ms": 633.83,
+      "p99_ms": 1550.65,
+      "mean_ms": 175.95
+    },
+    "recommendations": {
+      "requests": 65,
+      "errors": 0,
+      "rate_limited": 45,
+      "statuses": {
+        "200": 20,
+        "429": 45
+      },
+      "throughput_rps": 8.12,
+      "p50_ms": 81.25,
+      "p95_ms": 356.99,
+      "p99_ms": 4061.52,
+      "mean_ms": 240.94
+    },
+    "watchlist": {
+      "requests": 98,
+      "errors": 0,
+      "rate_limited": 68,
+      "statuses": {
+        "200": 30,
+        "429": 68
+      },
+      "throughput_rps": 12.25,
+      "p50_ms": 67.67,
+      "p95_ms": 493.35,
+      "p99_ms": 1403.1,
+      "mean_ms": 159.29
+    }
+  }
+}

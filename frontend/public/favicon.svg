@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CineRank">
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="13.25" fill="#050505" stroke="#262626" stroke-width="1.5" />
+  <path d="M43.6 18.2A18 18 0 1 0 43.6 45.8" fill="none" stroke="#ffffff" stroke-width="7" />
+  <path d="M27.5 23.5 40 32 27.5 40.5Z" fill="#e50914" />
+</svg>

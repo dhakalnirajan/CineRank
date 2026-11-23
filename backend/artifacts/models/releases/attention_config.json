@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "model": "target_aware_sequential_attention",
+  "architecture": "target_aware_sequential_attention_v2",
+  "n_items": 86537,
+  "embed_dim": 64,
+  "n_heads": 4,
+  "max_history": 64,
+  "hidden_dim": 128,
+  "dropout_at_inference": 0.0,
+  "id_offset": 1,
+  "pad_id": 0,
+  "history": "last max_history POSITIVE items, chronological, right-aligned, left-padded with 0; ids = item_index + 1",
+  "inputs": {
+    "history": "int64 [batch, max_history] (fixed length)",
+    "candidates": "int64 [batch, num_candidates] (ids >= 1)"
+  },
+  "outputs": {
+    "scores": "float32 [batch, num_candidates]; unnormalised logits, comparable only within one request"
+  },
+  "weights_file": "attention.safetensors",
+  "onnx_file": "attention.onnx",
+  "onnx": {
+    "opset": 17,
+    "dynamic_axes": [
+      "batch",
+      "num_candidates"
+    ],
+    "fixed_axes": [
+      "max_history"
+    ]
+  },
+  "onnx_parity_tolerance": {
+    "cpu_abs": 0.0001,
+    "gpu_abs": 0.002,
+    "basis": "fp32 inference; accumulation-order differences ~1e-6, CUDA kernels may use TF32"
+  },
+  "cold_item_policy": "score for items with popularity_scores == 0 is replaced by the candidate-pool minimum",
+  "training_summary": {
+    "time_budget_sec": 600.0,
+    "elapsed_wall_clock_sec": 598.314,
+    "budget_respected": true,
+    "optimizer_steps": 35898,
+    "examples_processed": 36759552,
+    "training_examples_available": 626965,
+    "precision": "fp16-autocast+GradScaler",
+    "device": "cuda"
+  },
+  "checkpoint": "best validation checkpoint (sampled NDCG@10); final-step weights are kept in the training run directory",
+  "sampled_validation_best": {
+    "val_loss": 0.26005297899246216,
+    "hr@10": 0.819,
+    "ndcg@10": 0.5581596511327928,
+    "mrr": 0.48584518626328954,
+    "step": 13900,
+    "elapsed_sec": 231.19
+  }
+}

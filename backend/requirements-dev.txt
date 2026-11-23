@@ -1,0 +1,10 @@
+-r requirements-runtime.txt
+
+# Test client and test runner.
+pytest>=8.0,<10.0
+httpx>=0.28,<1.0
+
+# Legacy portable-model tests import the training-era content and attention
+# helpers. These are not installed in the production API image.
+scikit-learn>=1.4,<2.0
+torch>=2.2,<3.0

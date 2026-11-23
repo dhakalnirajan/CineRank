@@ -1,0 +1,84 @@
+groups:
+  - name: cinerank-api
+    interval: 30s
+    rules:
+      - alert: CineRankApiDown
+        expr: up{job="cinerank-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: CineRank API target is down
+          description: Prometheus has failed to scrape the CineRank API for two minutes.
+
+      - alert: CineRankHighErrorRate
+        expr: sum(rate(cinerank_http_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(cinerank_http_requests_total[5m])), 1e-9) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: CineRank 5xx error ratio is above 5 percent
+          description: More than five percent of API responses have failed for ten minutes.
+
+      - alert: CineRankReadinessFailing
+        expr: sum(rate(cinerank_http_requests_total{route="/api/v1/health/ready",status="503"}[5m])) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: CineRank readiness checks are failing
+          description: The API has reported a database, Redis, or model readiness failure.
+
+      - alert: CineRankHighRequestLatency
+        expr: histogram_quantile(0.95, sum by (le) (rate(cinerank_http_request_duration_seconds_bucket[5m]))) > 1.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: CineRank p95 request latency is above 1.5 seconds
+          description: Aggregate p95 API latency has exceeded the warning threshold for ten minutes.
+
+      - alert: CineRankSlowRecommendations
+        expr: histogram_quantile(0.95, sum by (le) (rate(cinerank_recommendation_duration_seconds_bucket[10m]))) > 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: CineRank p95 recommendation latency is above 2 seconds
+          description: Computed recommendation requests are consistently slow.
+
+      - alert: CineRankRecommendationCacheMisses
+        expr: sum(rate(cinerank_recommendation_cache_events_total{layer="shared",result="hit"}[15m])) / clamp_min(sum(rate(cinerank_recommendation_cache_events_total{layer="shared",result=~"hit|miss"}[15m])), 1e-9) < 0.2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: CineRank shared recommendation cache hit rate is below 20 percent
+          description: Most recommendation requests are bypassing the shared cache. Check Redis availability and cache keys.
+
+      - alert: CineRankRedisErrors
+        expr: increase(cinerank_redis_operation_errors_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: CineRank Redis operations are failing
+          description: Redis cache or health operations have failed in the last five minutes.
+
+      - alert: CineRankDatabaseErrors
+        expr: increase(cinerank_database_operation_errors_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: CineRank database health checks are failing
+          description: The API has recorded database operation failures in the last five minutes.
+
+      - alert: CineRankRateLimitSpike
+        expr: sum(rate(cinerank_http_requests_total{status="429"}[5m])) > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: CineRank rate limiting is rejecting more than 5 requests per second
+          description: Sustained rate-limit rejections may indicate abuse or a misconfigured client.

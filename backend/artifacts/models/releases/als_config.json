@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "model": "implicit_als",
+  "n_items": 86537,
+  "factors": 128,
+  "item_factor_columns": 128,
+  "regularization": 0.05,
+  "confidence_alpha": 40.0,
+  "iterations": 15,
+  "confidence": "c = 1 + alpha * relevance(rating) over POSITIVE interactions only; relevance = clip((rating-0.5)/4.5, 0, 1)",
+  "fold_in": "x_u = (Y^T Y + sum_i (c_ui-1) y_i y_i^T + reg I)^-1 sum_i c_ui y_i ; score = Y x_u",
+  "user_factors_exported": false,
+  "positive_rating_threshold": 3.5,
+  "validation": {
+    "ndcg@10": 0.057312863123734736,
+    "recall@10": 0.11066666666666666,
+    "mrr@10": 0.0411521164021164
+  },
+  "fold_in_check": {
+    "users": 60,
+    "median_cosine_vs_trained_user_factors": 0.999343752861023,
+    "median_top10_overlap_vs_trained_user_factors": 1.0,
+    "median_cosine_vs_library_recalculate_user": 1.0,
+    "library_recalculate_user_error": null
+  }
+}
