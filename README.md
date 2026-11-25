@@ -1,6 +1,11 @@
 # CineRank
 
+<p align="center">
+    <img src="./icon.png" alt="CineRank logo" />
+</p>
+
 CineRank is a movie and television discovery application backed by a FastAPI catalogue and a versioned recommendation-serving layer. The frontend is a React, TypeScript and Vite single-page application. The supported deployment is a set of separate containers built from the repository's root `Dockerfile`: Nginx frontend, FastAPI API, background worker, one-shot Alembic migrator and PostgreSQL.
+
 
 ## Repository layout
 
